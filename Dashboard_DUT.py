@@ -16,7 +16,7 @@ server = app.server  # Expose the server for WSGI
 # File paths to the Excel files
 staff_file_path = 'Chart in Microsoft PowerPoint.xlsx'
 students_file_path = 'Students.xlsx'
-performance_file_path = 'Student Perfomances.xlsx'
+performance_file_path = '/content/Student Perfomances.xlsx'
 
 # Functions to create charts for staff data
 def create_staff_charts():
@@ -529,236 +529,203 @@ def create_students_charts():
 
     return fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9, fig10, fig11, fig12, fig13
 
-# Load the Excel file for performance data
-performance_file_path = 'Student Perfomances.xlsx'
+# Functions to create charts for performance data
+def create_performance_charts():
+    # Load the Excel file
+    file_name = performance_file_path  # Ensure the correct path is used
 
-# Read the Excel files into DataFrames
-df1 = pd.read_excel(performance_file_path, sheet_name='Sheet1')
-df2 = pd.read_excel(performance_file_path, sheet_name='Sheet2')
-df3 = pd.read_excel(performance_file_path, sheet_name='Sheet3')
-df4 = pd.read_excel(performance_file_path, sheet_name='Sheet4')
-df5 = pd.read_excel(performance_file_path, sheet_name='Sheet5')
-df6 = pd.read_excel(performance_file_path, sheet_name='Sheet6')
-df7 = pd.read_excel(performance_file_path, sheet_name='Sheet7')
-df8 = pd.read_excel(performance_file_path, sheet_name='Sheet8')
-df9 = pd.read_excel(performance_file_path, sheet_name='Sheet9')
-df10 = pd.read_excel(performance_file_path, sheet_name='Sheet10')
-df11 = pd.read_excel(performance_file_path, sheet_name='Sheet11')
-df12 = pd.read_excel(performance_file_path, sheet_name='Sheet12')
-df13 = pd.read_excel(performance_file_path, sheet_name='Sheet13')
-df14 = pd.read_excel(performance_file_path, sheet_name='Sheet14')
-df15 = pd.read_excel(performance_file_path, sheet_name='Sheet15')
+    # Read the Excel files into DataFrames
+    df1 = pd.read_excel(file_name, sheet_name='Sheet1')
+    df2 = pd.read_excel(file_name, sheet_name='Sheet2')
+    df3 = pd.read_excel(file_name, sheet_name='Sheet3')
+    df4 = pd.read_excel(file_name, sheet_name='Sheet4')
+    df5 = pd.read_excel(file_name, sheet_name='Sheet5')
+    df6 = pd.read_excel(file_name, sheet_name='Sheet6')
+    df7 = pd.read_excel(file_name, sheet_name='Sheet7')
+    df8 = pd.read_excel(file_name, sheet_name='Sheet8')
+    df9 = pd.read_excel(file_name, sheet_name='Sheet9')
+    df10 = pd.read_excel(file_name, sheet_name='Sheet10')
+    df11 = pd.read_excel(file_name, sheet_name='Sheet11')
+    df12 = pd.read_excel(file_name, sheet_name='Sheet12')
+    df13 = pd.read_excel(file_name, sheet_name='Sheet13')
+    df14 = pd.read_excel(file_name, sheet_name='Sheet14')
+    df15 = pd.read_excel(file_name, sheet_name='Sheet15')
 
-# Ensure Success Rates in Sheet1 are strings and convert them to float
-df1['Success Rates'] = df1['Success Rates'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet1 are strings and convert them to float
+    df1['Success Rates'] = df1['Success Rates'].astype(str).str.rstrip('%').astype(float)
 
-# Prepare data for Linear Regression from Sheet1
-X1 = df1[['Year']]
-y1 = df1['Success Rates']
+    # Prepare data for Linear Regression from Sheet1
+    X1 = df1[['Year']]
+    y1 = df1['Success Rates']
 
-# Impute any missing values in X1 and y1
-imputer_X1 = SimpleImputer(strategy='mean')
-imputer_y1 = SimpleImputer(strategy='mean')
-X1 = imputer_X1.fit_transform(X1)
-y1 = imputer_y1.fit_transform(y1.values.reshape(-1, 1)).ravel()
+    # Impute any missing values in X1 and y1
+    imputer_X1 = SimpleImputer(strategy='mean')
+    imputer_y1 = SimpleImputer(strategy='mean')
+    X1 = imputer_X1.fit_transform(X1)
+    y1 = imputer_y1.fit_transform(y1.values.reshape(-1, 1)).ravel()
 
-# Fit the Linear Regression model for Sheet1
-model1 = LinearRegression()
-model1.fit(X1, y1)
+    # Fit the Linear Regression model for Sheet1
+    model1 = LinearRegression()
+    model1.fit(X1, y1)
 
-# Forecasting for the next 5 years for Sheet1
-future_years1 = np.arange(df1['Year'].max() + 1, df1['Year'].max() + 6).reshape(-1, 1)
-predictions1 = model1.predict(future_years1)
+    # Forecasting for the next 5 years for Sheet1
+    future_years1 = np.arange(df1['Year'].max() + 1, df1['Year'].max() + 6).reshape(-1, 1)
+    predictions1 = model1.predict(future_years1)
 
-# Append predictions to the DataFrame for Sheet1
-future_df1 = pd.DataFrame({'Year': future_years1.flatten(), 'Success Rates': predictions1})
+    # Append predictions to the DataFrame for Sheet1
+    future_df1 = pd.DataFrame({'Year': future_years1.flatten(), 'Success Rates': predictions1})
 
-# Ensure Success Rates in Sheet2 are strings and convert them to float
-for year in ['2019', '2020', '2021', '2022']:
-    df2[year] = df2[year].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet2 are strings and convert them to float
+    for year in ['2019', '2020', '2021', '2022']:
+        df2[year] = df2[year].astype(str).str.rstrip('%').astype(float)
 
-# Melt the DataFrame from Sheet2 to have long-form data for easier plotting
-df_melted2 = df2.melt(id_vars=['Department'], value_vars=['2019', '2020', '2021', '2022'],
-                      var_name='Year', value_name='Success Rates')
+    # Melt the DataFrame from Sheet2 to have long-form data for easier plotting
+    df_melted2 = df2.melt(id_vars=['Department'], value_vars=['2019', '2020', '2021', '2022'],
+                        var_name='Year', value_name='Success Rates')
 
-# Ensure Success Rates in Sheet3 are strings and convert them to float
-df3['Success Rates of First Time Entering Students'] = df3['Success Rates of First Time Entering Students'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet3 are strings and convert them to float
+    df3['Success Rates of First Time Entering Students'] = df3['Success Rates of First Time Entering Students'].astype(str).str.rstrip('%').astype(float)
 
-# Prepare data for Linear Regression from Sheet3
-X3 = df3[['Year']]
-y3 = df3['Success Rates of First Time Entering Students']
+    # Prepare data for Linear Regression from Sheet3
+    X3 = df3[['Year']]
+    y3 = df3['Success Rates of First Time Entering Students']
 
-# Impute any missing values in X3 and y3
-imputer_X3 = SimpleImputer(strategy='mean')
-imputer_y3 = SimpleImputer(strategy='mean')
-X3 = imputer_X3.fit_transform(X3)
-y3 = imputer_y3.fit_transform(y3.values.reshape(-1, 1)).ravel()
+    # Impute any missing values in X3 and y3
+    imputer_X3 = SimpleImputer(strategy='mean')
+    imputer_y3 = SimpleImputer(strategy='mean')
+    X3 = imputer_X3.fit_transform(X3)
+    y3 = imputer_y3.fit_transform(y3.values.reshape(-1, 1)).ravel()
 
-# Fit the Linear Regression model for Sheet3
-model3 = LinearRegression()
-model3.fit(X3, y3)
+    # Fit the Linear Regression model for Sheet3
+    model3 = LinearRegression()
+    model3.fit(X3, y3)
 
-# Forecasting for the next 5 years for Sheet3
-future_years3 = np.arange(df3['Year'].max() + 1, df3['Year'].max() + 6).reshape(-1, 1)
-predictions3 = model3.predict(future_years3)
+    # Forecasting for the next 5 years for Sheet3
+    future_years3 = np.arange(df3['Year'].max() + 1, df3['Year'].max() + 6).reshape(-1, 1)
+    predictions3 = model3.predict(future_years3)
 
-# Append predictions to the DataFrame for Sheet3
-future_df3 = pd.DataFrame({'Year': future_years3.flatten(), 'Success Rates': predictions3})
+    # Append predictions to the DataFrame for Sheet3
+    future_df3 = pd.DataFrame({'Year': future_years3.flatten(), 'Success Rates': predictions3})
 
-# Ensure Success Rates in Sheet4 are strings and convert them to float
-df4['Success Rates of African Students'] = df4['Success Rates of African Students'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet4 are strings and convert them to float
+    df4['Success Rates of African Students'] = df4['Success Rates of African Students'].astype(str).str.rstrip('%').astype(float)
 
-# Prepare data for Linear Regression from Sheet4
-X4 = df4[['Year']]
-y4 = df4['Success Rates of African Students']
+    # Prepare data for Linear Regression from Sheet4
+    X4 = df4[['Year']]
+    y4 = df4['Success Rates of African Students']
 
-# Impute any missing values in X4 and y4
-imputer_X4 = SimpleImputer(strategy='mean')
-imputer_y4 = SimpleImputer(strategy='mean')
-X4 = imputer_X4.fit_transform(X4)
-y4 = imputer_y4.fit_transform(y4.values.reshape(-1, 1)).ravel()
+    # Impute any missing values in X4 and y4
+    imputer_X4 = SimpleImputer(strategy='mean')
+    imputer_y4 = SimpleImputer(strategy='mean')
+    X4 = imputer_X4.fit_transform(X4)
+    y4 = imputer_y4.fit_transform(y4.values.reshape(-1, 1)).ravel()
 
-# Fit the Linear Regression model for Sheet4
-model4 = LinearRegression()
-model4.fit(X4, y4)
+    # Fit the Linear Regression model for Sheet4
+    model4 = LinearRegression()
+    model4.fit(X4, y4)
 
-# Forecasting for the next 5 years for Sheet4
-future_years4 = np.arange(df4['Year'].max() + 1, df4['Year'].max() + 6).reshape(-1, 1)
-predictions4 = model4.predict(future_years4)
+    # Forecasting for the next 5 years for Sheet4
+    future_years4 = np.arange(df4['Year'].max() + 1, df4['Year'].max() + 6).reshape(-1, 1)
+    predictions4 = model4.predict(future_years4)
 
-# Append predictions to the DataFrame for Sheet4
-future_df4 = pd.DataFrame({'Year': future_years4.flatten(), 'Success Rates': predictions4})
+    # Append predictions to the DataFrame for Sheet4
+    future_df4 = pd.DataFrame({'Year': future_years4.flatten(), 'Success Rates': predictions4})
 
-# Ensure Success Rates in Sheet5 are strings and convert them to float
-df5['FACULTY'] = df5['FACULTY'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet5 are strings and convert them to float
+    df5['FACULTY'] = df5['FACULTY'].astype(str).str.rstrip('%').astype(float)
 
-# Ensure Success Rates in Sheet6 are strings and convert them to float
-for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
-    df6[year] = df6[year].astype(str).str.rstrip('%').astype(float)
-df6['Difference: 2014 vs 2022'] = df6['Difference: 2014 vs 2022'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet6 are strings and convert them to float
+    for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
+        df6[year] = df6[year].astype(str).str.rstrip('%').astype(float)
+    df6['Difference: 2014 vs 2022'] = df6['Difference: 2014 vs 2022'].astype(str).str.rstrip('%').astype(float)
 
-# Ensure Success Rates in Sheet7 are strings and convert them to float
-for year in ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
-    df7[year] = df7[year].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet7 are strings and convert them to float
+    for year in ['2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
+        df7[year] = df7[year].astype(str).str.rstrip('%').astype(float)
 
-# Ensure Success Rates in Sheet8 are strings and convert them to float
-for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
-    df8[year] = df8[year].astype(str).str.rstrip('%').astype(float)
-df8['Difference: 2014 vs 2022'] = df8['Difference: 2014 vs 2022'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet8 are strings and convert them to float
+    for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
+        df8[year] = df8[year].astype(str).str.rstrip('%').astype(float)
+    df8['Difference: 2014 vs 2022'] = df8['Difference: 2014 vs 2022'].astype(str).str.rstrip('%').astype(float)
 
-# Ensure Success Rates in Sheet9 are strings and convert them to float
-for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020']:
-    df9[year] = df9[year].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet9 are strings and convert them to float
+    for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020']:
+        df9[year] = df9[year].astype(str).str.rstrip('%').astype(float)
 
-# Ensure Success Rates in Sheet10 are strings and convert them to float
-df10['Dropout'] = df10['Dropout'].astype(str).str.rstrip('%').astype(float)
-df10['Throughput'] = df10['Throughput'].astype(str).str.rstrip('%').astype(float)
-df10['Still in Progress'] = df10['Still in Progress'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet10 are strings and convert them to float
+    df10['Dropout'] = df10['Dropout'].astype(str).str.rstrip('%').astype(float)
+    df10['Throughput'] = df10['Throughput'].astype(str).str.rstrip('%').astype(float)
+    df10['Still in Progress'] = df10['Still in Progress'].astype(str).str.rstrip('%').astype(float)
 
-# Ensure Success Rates in Sheet11 are strings and convert them to float
-for year in ['2014', '2015', '2016', '2019', '2020', '2021', '2022']:
-    df11[year] = df11[year].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet11 are strings and convert them to float
+    for year in ['2014', '2015', '2016', '2019', '2020', '2021', '2022']:
+        df11[year] = df11[year].astype(str).str.rstrip('%').astype(float)
 
-# Ensure Success Rates in Sheet12 are strings and convert them to float
-df12['Faculty'] = df12['Faculty'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet12 are strings and convert them to float
+    df12['Faculty'] = df12['Faculty'].astype(str).str.rstrip('%').astype(float)
 
-# Filter out the row containing "Difference: 2014 vs. 2021"
-df12_filtered = df12[df12['Year'] != 'Difference: 2014 vs. 2021']
-df12_filtered['Year'] = df12_filtered['Year'].astype(int)
+    # Filter out the row containing "Difference: 2014 vs. 2021"
+    df12_filtered = df12[df12['Year'] != 'Difference: 2014 vs. 2021']
+    df12_filtered['Year'] = df12_filtered['Year'].astype(int)
 
-# Prepare data for Linear Regression from Sheet12
-X12 = df12_filtered[['Year']]
-y12 = df12_filtered['Faculty']
+    # Prepare data for Linear Regression from Sheet12
+    X12 = df12_filtered[['Year']]
+    y12 = df12_filtered['Faculty']
 
-# Impute any missing values in X12 and y12
-imputer_X12 = SimpleImputer(strategy='mean')
-imputer_y12 = SimpleImputer(strategy='mean')
-X12 = imputer_X12.fit_transform(X12)
-y12 = imputer_y12.fit_transform(y12.values.reshape(-1, 1)).ravel()
+    # Impute any missing values in X12 and y12
+    imputer_X12 = SimpleImputer(strategy='mean')
+    imputer_y12 = SimpleImputer(strategy='mean')
+    X12 = imputer_X12.fit_transform(X12)
+    y12 = imputer_y12.fit_transform(y12.values.reshape(-1, 1)).ravel()
 
-# Fit the Linear Regression model for Sheet12
-model12 = LinearRegression()
-model12.fit(X12, y12)
+    # Fit the Linear Regression model for Sheet12
+    model12 = LinearRegression()
+    model12.fit(X12, y12)
 
-# Forecasting for the next 5 years for Sheet12
-future_years12 = np.arange(df12_filtered['Year'].max() + 1, df12_filtered['Year'].max() + 6).reshape(-1, 1)
-predictions12 = model12.predict(future_years12)
+    # Forecasting for the next 5 years for Sheet12
+    future_years12 = np.arange(df12_filtered['Year'].max() + 1, df12_filtered['Year'].max() + 6).reshape(-1, 1)
+    predictions12 = model12.predict(future_years12)
 
-# Append predictions to the DataFrame for Sheet12
-future_df12 = pd.DataFrame({'Year': future_years12.flatten(), 'Faculty': predictions12})
+    # Append predictions to the DataFrame for Sheet12
+    future_df12 = pd.DataFrame({'Year': future_years12.flatten(), 'Faculty': predictions12})
 
-# Ensure Success Rates in Sheet13 are strings and convert them to float
-for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
-    df13[year] = df13[year].astype(str).str.rstrip('%').astype(float)
-df13['Difference: 2014 vs 2022'] = df13['Difference: 2014 vs 2022'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet13 are strings and convert them to float
+    for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
+        df13[year] = df13[year].astype(str).str.rstrip('%').astype(float)
+    df13['Difference: 2014 vs 2022'] = df13['Difference: 2014 vs 2022'].astype(str).str.rstrip('%').astype(float)
 
-# Ensure Success Rates in Sheet14 are strings and convert them to float
-df14['Faculty'] = df14['Faculty'].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet14 are strings and convert them to float
+    df14['Faculty'] = df14['Faculty'].astype(str).str.rstrip('%').astype(float)
 
-# Prepare data for Linear Regression from Sheet14
-X14 = df14[['Year']]
-y14 = df14['Faculty']
+    # Prepare data for Linear Regression from Sheet14
+    X14 = df14[['Year']]
+    y14 = df14['Faculty']
 
-# Impute any missing values in X14 and y14
-imputer_X14 = SimpleImputer(strategy='mean')
-imputer_y14 = SimpleImputer(strategy='mean')
-X14 = imputer_X14.fit_transform(X14)
-y14 = imputer_y14.fit_transform(y14.values.reshape(-1, 1)).ravel()
+    # Impute any missing values in X14 and y14
+    imputer_X14 = SimpleImputer(strategy='mean')
+    imputer_y14 = SimpleImputer(strategy='mean')
+    X14 = imputer_X14.fit_transform(X14)
+    y14 = imputer_y14.fit_transform(y14.values.reshape(-1, 1)).ravel()
 
-# Fit the Linear Regression model for Sheet14
-model14 = LinearRegression()
-model14.fit(X14, y14)
+    # Fit the Linear Regression model for Sheet14
+    model14 = LinearRegression()
+    model14.fit(X14, y14)
 
-# Forecasting for the next 5 years for Sheet14
-future_years14 = np.arange(df14['Year'].max() + 1, df14['Year'].max() + 6).reshape(-1, 1)
-predictions14 = model14.predict(future_years14)
+    # Forecasting for the next 5 years for Sheet14
+    future_years14 = np.arange(df14['Year'].max() + 1, df14['Year'].max() + 6).reshape(-1, 1)
+    predictions14 = model14.predict(future_years14)
 
-# Append predictions to the DataFrame for Sheet14
-future_df14 = pd.DataFrame({'Year': future_years14.flatten(), 'Faculty': predictions14})
+    # Append predictions to the DataFrame for Sheet14
+    future_df14 = pd.DataFrame({'Year': future_years14.flatten(), 'Faculty': predictions14})
 
-# Ensure Success Rates in Sheet15 are strings and convert them to float
-for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
-    df15[year] = df15[year].astype(str).str.rstrip('%').astype(float)
+    # Ensure Success Rates in Sheet15 are strings and convert them to float
+    for year in ['2014', '2015', '2016', '2017', '2018', '2019', '2020', '2021', '2022']:
+        df15[year] = df15[year].astype(str).str.rstrip('%').astype(float)
 
-# Find the year with the highest overall performance in Sheet2
-highest_year = df_melted2.loc[df_melted2['Success Rates'].idxmax()]['Year']
-
-# Third page layout for performance data
-performance_layout = html.Div(style={'textAlign': 'center'}, children=[
-    html.H1("Student Performance Indicators"),
-    dcc.Dropdown(
-        id='sheet-dropdown',
-        options=[
-            {'label': 'Sheet1', 'value': 'sheet1'},
-            {'label': 'Sheet2', 'value': 'sheet2'},
-            {'label': 'Sheet3', 'value': 'sheet3'},
-            {'label': 'Sheet4', 'value': 'sheet4'},
-            {'label': 'Sheet5', 'value': 'sheet5'},
-            {'label': 'Sheet6', 'value': 'sheet6'},
-            {'label': 'Sheet7', 'value': 'sheet7'},
-            {'label': 'Sheet8', 'value': 'sheet8'},
-            {'label': 'Sheet9', 'value': 'sheet9'},
-            {'label': 'Sheet10', 'value': 'sheet10'},
-            {'label': 'Sheet11', 'value': 'sheet11'},
-            {'label': 'Sheet12', 'value': 'sheet12'},
-            {'label': 'Sheet13', 'value': 'sheet13'},
-            {'label': 'Sheet14', 'value': 'sheet14'},
-            {'label': 'Sheet15', 'value': 'sheet15'}
-        ],
-        value='sheet1',
-        style={'width': '50%', 'margin': '0 auto'}
-    ),
-    dcc.Graph(id='performance-graph')
-])
-
-@app.callback(
-    Output('performance-graph', 'figure'),
-    [Input('sheet-dropdown', 'value')]
-)
-def update_performance_graph(sheet):
-    if sheet == 'sheet1':
-        figure = {
-            'data': [
+    # Create a dictionary of all figures with appropriate titles
+    figures = {
+        "FAS Overall Student Success Rate (Sheet1)": go.Figure(
+            data=[
                 go.Scatter(
                     x=df1['Year'],
                     y=df1['Success Rates'],
@@ -774,31 +741,29 @@ def update_performance_graph(sheet):
                     line=dict(color='red', dash='dash')
                 )
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='FAS Overall Student Success Rate (Sheet1)',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Success Rate (%)'}
             )
-        }
-    elif sheet == 'sheet2':
-        figure = {
-            'data': [
+        ),
+        "Department Success Rates by Year (Sheet2)": go.Figure(
+            data=[
                 go.Bar(
                     x=df_melted2[df_melted2['Department'] == dept]['Year'],
                     y=df_melted2[df_melted2['Department'] == dept]['Success Rates'],
                     name=dept
                 ) for dept in df2['Department']
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Department Success Rates by Year (Sheet2)',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Success Rate (%)'},
                 barmode='group'
             )
-        }
-    elif sheet == 'sheet3':
-        figure = {
-            'data': [
+        ),
+        "Success Rates of First Time Entering Students (Sheet3)": go.Figure(
+            data=[
                 go.Scatter(
                     x=df3['Year'],
                     y=df3['Success Rates of First Time Entering Students'],
@@ -814,15 +779,14 @@ def update_performance_graph(sheet):
                     line=dict(color='orange', dash='dash')
                 )
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Success Rates of First Time Entering Students (Sheet3)',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Success Rate (%)'}
             )
-        }
-    elif sheet == 'sheet4':
-        figure = {
-            'data': [
+        ),
+        "Success Rates of African Students (Sheet4)": go.Figure(
+            data=[
                 go.Scatter(
                     x=df4['Year'],
                     y=df4['Success Rates of African Students'],
@@ -838,15 +802,14 @@ def update_performance_graph(sheet):
                     line=dict(color='brown', dash='dash')
                 )
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Success Rates of African Students (Sheet4)',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Success Rate (%)'}
             )
-        }
-    elif sheet == 'sheet5':
-        figure = {
-            'data': [
+        ),
+        "Faculty Student Throughput - Undergraduate (Sheet5)": go.Figure(
+            data=[
                 go.Scatter(
                     x=df5['Year'],
                     y=df5['FACULTY'],
@@ -855,95 +818,104 @@ def update_performance_graph(sheet):
                     line=dict(color='cyan')
                 )
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Faculty Student Throughput - Undergraduate',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Success Rate (%)'}
             )
-        }
-    elif sheet == 'sheet6':
-        figure = {
-            'data': [
+        ),
+        "Department Success Rates by Year (Sheet6)": go.Figure(
+            data=[
                 go.Bar(
                     x=[year for year in range(2014, 2023)],
                     y=df6.loc[df6['Department'] == dept, [str(year) for year in range(2014, 2023)]].values.flatten(),
                     name=dept
                 ) for dept in df6['Department']
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Department Success Rates by Year (Sheet6)',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Success Rate (%)'},
                 barmode='group'
             )
-        }
-    elif sheet == 'sheet7':
-        figure = {
-            'data': [
+        ),
+        "Difference in Success Rates 2014 vs 2022 (Sheet6)": go.Figure(
+            data=[
+                go.Bar(
+                    x=df6['Department'],
+                    y=df6['Difference: 2014 vs 2022'],
+                    name='Difference 2014 vs 2022',
+                    marker=dict(color='blue')
+                )
+            ],
+            layout=go.Layout(
+                title='Difference in Success Rates 2014 vs 2022 (Sheet6)',
+                xaxis={'title': 'Department'},
+                yaxis={'title': 'Difference (%)'}
+            )
+        ),
+        "Postgraduate Throughput - Masters (Sheet7)": go.Figure(
+            data=[
                 go.Bar(
                     x=[str(year) for year in range(2015, 2023)],
                     y=df7.loc[df7['Department'] == dept, [str(year) for year in range(2015, 2023)]].values.flatten(),
                     name=dept
-                ) for dept in df7['Department']
+                ) for dept in df7[df7['Department'].str.contains('Masters')]['Department']
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Postgraduate Throughput - Masters',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Success Rate (%)'},
                 barmode='group'
             )
-        }
-    elif sheet == 'sheet8':
-        figure = {
-            'data': [
+        ),
+        "Postgraduate Throughput - PhD (Sheet7)": go.Figure(
+            data=[
                 go.Bar(
                     x=[str(year) for year in range(2015, 2023)],
                     y=df7.loc[df7['Department'] == dept, [str(year) for year in range(2015, 2023)]].values.flatten(),
                     name=dept
-                ) for dept in df7['Department']
+                ) for dept in df7[df7['Department'].str.contains('PhD')]['Department']
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Postgraduate Throughput - PhD',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Success Rate (%)'},
                 barmode='group'
             )
-        }
-    elif sheet == 'sheet9':
-        figure = {
-            'data': [
+        ),
+        "Student Dropout Rates - Undergraduate (Sheet8)": go.Figure(
+            data=[
                 go.Bar(
                     x=[str(year) for year in range(2014, 2023)],
                     y=df8.loc[df8['Department'] == dept, [str(year) for year in range(2014, 2023)]].values.flatten(),
                     name=dept
                 ) for dept in df8['Department']
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Student Dropout Rates - Undergraduate',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Dropout Rate (%)'},
                 barmode='group'
             )
-        }
-    elif sheet == 'sheet10':
-        figure = {
-            'data': [
+        ),
+        "Dropout Rate in The First Year (Sheet9)": go.Figure(
+            data=[
                 go.Bar(
                     x=[str(year) for year in range(2014, 2021)],
                     y=df9.loc[df9['Department'] == dept, [str(year) for year in range(2014, 2021)]].values.flatten(),
                     name=dept
                 ) for dept in df9['Department']
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Dropout Rate in The First Year',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Dropout Rate (%)'},
                 barmode='group'
             )
-        }
-    elif sheet == 'sheet11':
-        figure = {
-            'data': [
+        ),
+        "Dropout, Throughput, and Still in Progress (Sheet10)": go.Figure(
+            data=[
                 go.Bar(
                     x=df10['Department'],
                     y=df10['Dropout'],
@@ -960,48 +932,45 @@ def update_performance_graph(sheet):
                     name='Still in Progress'
                 )
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Dropout, Throughput, and Still in Progress (Sheet10)',
                 xaxis={'title': 'Department'},
                 yaxis={'title': 'Percentage (%)'},
                 barmode='group'
             )
-        }
-    elif sheet == 'sheet12':
-        figure = {
-            'data': [
+        ),
+        "Postgraduate Dropout - Masters (Sheet11)": go.Figure(
+            data=[
                 go.Bar(
                     x=[str(year) for year in range(2014, 2023) if str(year) in df11.columns],
                     y=df11.loc[df11['Department'] == dept, [str(year) for year in range(2014, 2023) if str(year) in df11.columns]].values.flatten(),
                     name=dept
                 ) for dept in df11[df11['Department'].str.contains('Masters')]['Department']
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Postgraduate Dropout - Masters',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Dropout Rate (%)'},
                 barmode='group'
             )
-        }
-    elif sheet == 'sheet13':
-        figure = {
-            'data': [
+        ),
+        "Postgraduate Dropout - PhD (Sheet11)": go.Figure(
+            data=[
                 go.Bar(
                     x=[str(year) for year in range(2014, 2023) if str(year) in df11.columns],
                     y=df11.loc[df11['Department'] == dept, [str(year) for year in range(2014, 2023) if str(year) in df11.columns]].values.flatten(),
                     name=dept
                 ) for dept in df11[df11['Department'].str.contains('PhD')]['Department']
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Postgraduate Dropout - PhD',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Dropout Rate (%)'},
                 barmode='group'
             )
-        }
-    elif sheet == 'sheet14':
-        figure = {
-            'data': [
+        ),
+        "FAS Graduation Rates (Sheet12)": go.Figure(
+            data=[
                 go.Scatter(
                     x=df12_filtered['Year'],
                     y=df12_filtered['Faculty'],
@@ -1017,7 +986,7 @@ def update_performance_graph(sheet):
                     line=dict(color='red', dash='dash')
                 )
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='FAS Graduation Rates',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Graduation Rate (%)'},
@@ -1035,17 +1004,16 @@ def update_performance_graph(sheet):
                     )
                 ]
             )
-        }
-    elif sheet == 'sheet15':
-        figure = {
-            'data': [
+        ),
+        "Graduation Rates By Programme (Sheet13)": go.Figure(
+            data=[
                 go.Bar(
                     x=[year for year in range(2014, 2023)],
                     y=df13.loc[df13['Department'] == dept, [str(year) for year in range(2014, 2023)]].values.flatten(),
                     name=dept
                 ) for dept in df13['Department']
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Graduation Rates By Programme',
                 xaxis={'title': 'Year'},
                 yaxis={'title': 'Graduation Rate (%)'},
@@ -1064,10 +1032,9 @@ def update_performance_graph(sheet):
                     )
                 ]
             )
-        }
-    else:
-        figure = {
-            'data': [
+        ),
+        "Difference in Graduation Rates 2014 vs 2022 (Sheet13)": go.Figure(
+            data=[
                 go.Bar(
                     x=df13['Department'],
                     y=df13['Difference: 2014 vs 2022'],
@@ -1075,109 +1042,142 @@ def update_performance_graph(sheet):
                     marker=dict(color='blue')
                 )
             ],
-            'layout': go.Layout(
+            layout=go.Layout(
                 title='Difference in Graduation Rates 2014 vs 2022 (Sheet13)',
                 xaxis={'title': 'Department'},
                 yaxis={'title': 'Difference (%)'}
             )
-        }
+        ),
+        "Postgraduate Graduation Rate (Sheet14)": go.Figure(
+            data=[
+                go.Scatter(
+                    x=df14['Year'],
+                    y=df14['Faculty'],
+                    mode='lines+markers',
+                    name='Actual Graduation Rate',
+                    line=dict(color='blue')
+                ),
+                go.Scatter(
+                    x=future_df14['Year'],
+                    y=future_df14['Faculty'],
+                    mode='lines+markers',
+                    name='Forecasted Graduation Rate',
+                    line=dict(color='red', dash='dash')
+                )
+            ],
+            layout=go.Layout(
+                title='Postgraduate Graduation Rate',
+                xaxis={'title': 'Year'},
+                yaxis={'title': 'Graduation Rate (%)'}
+            )
+        ),
+        "Pass Rates by Department (Sheet15)": go.Figure(
+            data=[
+                go.Bar(
+                    x=[year for year in range(2014, 2023)],
+                    y=df15.loc[df15['Department'] == dept, [str(year) for year in range(2014, 2023)]].values.flatten(),
+                    name=dept
+                ) for dept in df15['Department']
+            ],
+            layout=go.Layout(
+                title='Pass Rates by Department (Sheet15)',
+                xaxis={'title': 'Year'},
+                yaxis={'title': 'Pass Rate (%)'},
+                barmode='group'
+            )
+        )
+    }
 
-    return figure
+    return figures
+
+# Dropdown options for the staff and student pages
+staff_dropdown_options = [
+    {'label': 'Faculty Data (Sheet1)', 'value': 'Sheet1'},
+    {'label': 'Department Success Rates (Sheet2)', 'value': 'Sheet2'},
+    {'label': 'Academic Staff with PhD (Sheet3)', 'value': 'Sheet3'},
+    {'label': 'Forecast for 2030 - Faculty Data (Sheet1)', 'value': 'Sheet1_forecast'},
+    {'label': 'Forecast for 2030 - Department Success Rates (Sheet2)', 'value': 'Sheet2_forecast'},
+    {'label': 'Forecast for 2030 - Academic Staff with PhD (Sheet3)', 'value': 'Sheet3_forecast'},
+    {'label': 'Department Success Rates Line (Sheet4)', 'value': 'Sheet4'},
+    {'label': 'Percentage Difference (2022 vs. 2014)', 'value': 'Sheet5_diff'},
+    {'label': 'Percentage of Full-Time Permanent Academic Staff with PhD (2014-2022)', 'value': 'Sheet5'}
+]
+
+students_dropdown_options = [
+    {'label': 'Headcount Enrolment: Planned vs Achieved (2014-2022)', 'value': 'fig1'},
+    {'label': 'Linear Regression Forecast for 2030', 'value': 'fig2'},
+    {'label': 'Enrolment by Level', 'value': 'fig3'},
+    {'label': 'Number of Students by Department (2014 vs 2022)', 'value': 'fig4'},
+    {'label': '% African Students (2014-2022)', 'value': 'fig5'},
+    {'label': '% Female Students (2014-2022)', 'value': 'fig6'},
+    {'label': 'Postgraduate Enrolment (2014-2022)', 'value': 'fig7'},
+    {'label': 'Postgraduate (M+D) Enrolment by Department', 'value': 'fig8'},
+    {'label': 'Difference 2014 vs 2022 by Department', 'value': 'fig9'},
+    {'label': 'Postgraduate Enrolment - Actual Student Numbers', 'value': 'fig10'},
+    {'label': 'International Student Postgraduate Enrolment', 'value': 'fig11'},
+    {'label': 'International Students Postgraduate Enrolment - Actual Numbers', 'value': 'fig12'}
+]
+
+# Dropdown options for the performance page
+performance_dropdown_options = [
+    {'label': 'FAS Overall Student Success Rate', 'value': 'FAS Overall Student Success Rate (Sheet1)'},
+    {'label': 'Department Success Rates by Year', 'value': 'Department Success Rates by Year (Sheet2)'},
+    {'label': 'Success Rates of First Time Entering Students', 'value': 'Success Rates of First Time Entering Students (Sheet3)'},
+    {'label': 'Success Rates of African Students', 'value': 'Success Rates of African Students (Sheet4)'},
+    {'label': 'Faculty Student Throughput - Undergraduate', 'value': 'Faculty Student Throughput - Undergraduate (Sheet5)'},
+    {'label': 'Department Success Rates by Year', 'value': 'Department Success Rates by Year (Sheet6)'},
+    {'label': 'Difference in Success Rates 2014 vs 2022', 'value': 'Difference in Success Rates 2014 vs 2022 (Sheet6)'},
+    {'label': 'Postgraduate Throughput - Masters', 'value': 'Postgraduate Throughput - Masters (Sheet7)'},
+    {'label': 'Postgraduate Throughput - PhD', 'value': 'Postgraduate Throughput - PhD (Sheet7)'},
+    {'label': 'Student Dropout Rates - Undergraduate', 'value': 'Student Dropout Rates - Undergraduate (Sheet8)'},
+    {'label': 'Dropout Rate in The First Year', 'value': 'Dropout Rate in The First Year (Sheet9)'},
+    {'label': 'Dropout, Throughput, and Still in Progress', 'value': 'Dropout, Throughput, and Still in Progress (Sheet10)'},
+    {'label': 'Postgraduate Dropout - Masters', 'value': 'Postgraduate Dropout - Masters (Sheet11)'},
+    {'label': 'Postgraduate Dropout - PhD', 'value': 'Postgraduate Dropout - PhD (Sheet11)'},
+    {'label': 'FAS Graduation Rates', 'value': 'FAS Graduation Rates (Sheet12)'},
+    {'label': 'Graduation Rates By Programme', 'value': 'Graduation Rates By Programme (Sheet13)'},
+    {'label': 'Difference in Graduation Rates 2014 vs 2022', 'value': 'Difference in Graduation Rates 2014 vs 2022 (Sheet13)'},
+    {'label': 'Postgraduate Graduation Rate', 'value': 'Postgraduate Graduation Rate (Sheet14)'},
+    {'label': 'Pass Rates by Department', 'value': 'Pass Rates by Department (Sheet15)'}
+]
 
 # Staff page layout
 bar_figures, line_figures, forecast_figures, fig_diff, fig_sheet5 = create_staff_charts()
 staff_layout = html.Div(style={'textAlign': 'center'}, children=[
     html.H1("Staff Preliminary Analysis"),
-    
-    html.Img(src='/assets/my_image.png', style={'width': '20%', 'height': 'auto'}),
-    
-    html.Div([
-        html.H2("Faculty Data"),
-        html.P("Reporting Period 2014 till 2022", style={'color': 'purple'})
-    ], style={'textAlign': 'center'}),
-    
-    # Display the bar charts and forecast charts side by side
-    html.Div([
-        dcc.Graph(figure=bar_figures.get('Sheet1'), style={'width': '50%', 'height': '600px'}),
-        dcc.Graph(figure=bar_figures.get('Sheet2'), style={'width': '50%', 'height': '600px'})
-    ], style={'display': 'flex', 'justifyContent': 'center'}),
-    
-    html.Div([
-        dcc.Graph(figure=bar_figures.get('Sheet3'), style={'width': '50%', 'height': '600px'}),
-        dcc.Graph(figure=forecast_figures.get('Sheet1'), style={'width': '50%', 'height': '600px'})
-    ], style={'display': 'flex', 'justifyContent': 'center'}),
-    
-    html.Div([
-        dcc.Graph(figure=forecast_figures.get('Sheet2'), style={'width': '50%', 'height': '600px'}),
-        dcc.Graph(figure=forecast_figures.get('Sheet3'), style={'width': '50%', 'height': '600px'})
-    ], style={'display': 'flex', 'justifyContent': 'center'}),
-    
-    html.Div([
-        dcc.Graph(figure=line_figures.get('Sheet4'), style={'width': '50%', 'height': '600px'}),
-        dcc.Graph(figure=fig_diff, style={'width': '50%', 'height': '600px'})  # Ensure Sheet5 chart is included
-    ], style={'display': 'flex', 'justifyContent': 'center'}),
-    
-    html.Div([
-        dcc.Graph(figure=fig_sheet5, style={'width': '100%', 'height': '600px'})  # Full-width for Sheet5
-    ], style={'display': 'flex', 'justifyContent': 'center'})
+    dcc.Dropdown(
+        id='staff-dropdown',
+        options=staff_dropdown_options,
+        value='Sheet1',
+        style={'width': '50%', 'margin': 'auto'}
+    ),
+    dcc.Graph(id='staff-graph')
 ])
 
 # Students page layout
 fig1, fig2, fig3, fig4, fig5, fig6, fig7, fig8, fig9, fig10, fig11, fig12, fig13 = create_students_charts()
 students_layout = html.Div(style={'textAlign': 'center'}, children=[
     html.H1("Students Preliminary Analysis"),
+    dcc.Dropdown(
+        id='students-dropdown',
+        options=students_dropdown_options,
+        value='fig1',
+        style={'width': '50%', 'margin': 'auto'}
+    ),
+    dcc.Graph(id='students-graph')
+])
 
-    html.Div([
-        dcc.Graph(figure=fig1)  # First chart
-    ], style={'margin-bottom': '20px'}),  # Add space below the first chart
-
-    html.Div([
-        dcc.Graph(figure=fig2)  # Second chart
-    ], style={'margin-bottom': '20px'}),  # Add space below the second chart
-
-    html.Div([
-        dcc.Graph(figure=fig3)  # Bar chart from Sheet2
-    ], style={'margin-bottom': '20px'}),  # Add space below the third chart
-
-    html.Div([
-        dcc.Graph(figure=fig4)  # Bar chart from Sheet3
-    ], style={'margin-bottom': '20px'}),  # Add space below the fourth chart
-
-    html.Div([
-        dcc.Graph(figure=fig5)  # Line chart from Sheet4
-    ], style={'margin-bottom': '20px'}),  # Add space below the fifth chart
-
-    html.Div([
-        dcc.Graph(figure=fig6)  # Line chart from Sheet5
-    ], style={'margin-bottom': '20px'}),  # Add space below the sixth chart
-
-    html.Div([
-        dcc.Graph(figure=fig7)  # Line chart from Sheet6
-    ], style={'margin-bottom': '20px'}),  # Add space below the seventh chart
-
-    html.Div([
-        dcc.Graph(figure=fig8)  # Bar chart from Sheet7
-    ], style={'margin-bottom': '20px'}),  # Add space below the eighth chart
-
-    html.Div([
-        dcc.Graph(figure=fig9)  # Line chart from Sheet8
-    ], style={'margin-bottom': '20px'}),  # Add space below the ninth chart
-
-    html.Div([
-        dcc.Graph(figure=fig10)  # Bar chart for Difference 2014 vs 2022
-    ], style={'margin-bottom': '20px'}),  # Add space below the tenth chart
-
-    html.Div([
-        dcc.Graph(figure=fig11)  # Bar chart from Sheet9
-    ], style={'margin-bottom': '20px'}),  # Add space below the eleventh chart
-
-    html.Div([
-        dcc.Graph(figure=fig12)  # Bar chart from Sheet10
-    ], style={'margin-bottom': '20px'}),  # Add space below the twelfth chart
-
-    html.Div([
-        dcc.Graph(figure=fig13)  # Bar chart from Sheet11
-    ])
+# Performance page layout
+performance_figures = create_performance_charts()
+performance_layout = html.Div(style={'textAlign': 'center'}, children=[
+    html.H1("Student Performance Indicators"),
+    dcc.Dropdown(
+        id='performance-dropdown',
+        options=performance_dropdown_options,
+        value='FAS Overall Student Success Rate (Sheet1)',
+        style={'width': '50%', 'margin': 'auto'}
+    ),
+    dcc.Graph(id='performance-graph')
 ])
 
 # Define the main layout with a navigation bar and content
@@ -1203,6 +1203,48 @@ def display_page(pathname):
         return performance_layout
     else:
         return staff_layout
+
+# Callback for updating the staff graph
+@app.callback(Output('staff-graph', 'figure'),
+              [Input('staff-dropdown', 'value')])
+def update_staff_graph(selected_value):
+    if selected_value in bar_figures:
+        return bar_figures[selected_value]
+    elif selected_value in forecast_figures:
+        return forecast_figures[selected_value]
+    elif selected_value == 'Sheet5_diff':
+        return fig_diff
+    elif selected_value == 'Sheet5':
+        return fig_sheet5
+    else:
+        return line_figures[selected_value]
+
+# Callback for updating the students graph
+@app.callback(Output('students-graph', 'figure'),
+              [Input('students-dropdown', 'value')])
+def update_students_graph(selected_value):
+    figures = {
+        'fig1': fig1,
+        'fig2': fig2,
+        'fig3': fig3,
+        'fig4': fig4,
+        'fig5': fig5,
+        'fig6': fig6,
+        'fig7': fig7,
+        'fig8': fig8,
+        'fig9': fig9,
+        'fig10': fig10,
+        'fig11': fig11,
+        'fig12': fig12,
+        'fig13': fig13
+    }
+    return figures[selected_value]
+
+# Callback for updating the performance graph
+@app.callback(Output('performance-graph', 'figure'),
+              [Input('performance-dropdown', 'value')])
+def update_performance_graph(selected_value):
+    return performance_figures[selected_value]
 
 # Run the Dash app
 if __name__ == '__main__':
