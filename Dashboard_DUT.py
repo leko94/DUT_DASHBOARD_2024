@@ -1,6 +1,6 @@
 import dash
 from dash import dcc, html
-from dash.dependencies import Input, Output
+from dash.dependencies import Input, Output, State
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -8,15 +8,31 @@ import numpy as np
 from sklearn.linear_model import LinearRegression
 from sklearn.impute import SimpleImputer
 from openpyxl import load_workbook
+import smtplib
+from email.mime.text import MIMEText
 
 # Initialize the Dash app
 app = dash.Dash(__name__, suppress_callback_exceptions=True)
 server = app.server  # Expose the server for WSGI
 
+# Email function
+def send_email(subject, message, recipient):
+    sender_email = "Ngcobo.Nkululeko@yahoo.com"  # Your Yahoo email address
+    sender_password = "your_app_password"  # Your Yahoo app password
+
+    msg = MIMEText(message)
+    msg['Subject'] = subject
+    msg['From'] = sender_email
+    msg['To'] = recipient
+
+    with smtplib.SMTP_SSL('smtp.mail.yahoo.com', 465) as server:  # Yahoo SMTP server
+        server.login(sender_email, sender_password)
+        server.sendmail(sender_email, recipient, msg.as_string())
+
 # File paths to the Excel files
 staff_file_path = 'Chart in Microsoft PowerPoint.xlsx'
 students_file_path = 'Students.xlsx'
-performance_file_path = 'Student Perfomances.xlsx'
+performance_file_path = '/content/Student Perfomances.xlsx'
 
 # Functions to create charts for staff data
 def create_staff_charts():
@@ -83,8 +99,8 @@ def create_staff_charts():
         y = df[y_label].values
         model = LinearRegression().fit(X, y)
         
-        # Forecast for 2030
-        future_years = np.array([2030]).reshape(-1, 1)
+        # Forecast for the next 5 years
+        future_years = np.arange(df[x_label].max() + 1, df[x_label].max() + 6).reshape(-1, 1)
         forecast_values = model.predict(future_years)
         
         fig = px.line(
@@ -95,8 +111,8 @@ def create_staff_charts():
             labels={df.columns[0]: x_label, df.columns[1]: y_label},
             color_discrete_sequence=[color]
         )
-        forecast_df = pd.DataFrame({x_label: [2030], y_label: forecast_values})
-        fig.add_scatter(x=forecast_df[x_label], y=forecast_df[y_label], mode='markers+text', text=['2030'], textposition='top center', marker=dict(color='red', size=10))
+        forecast_df = pd.DataFrame({x_label: future_years.flatten(), y_label: forecast_values})
+        fig.add_scatter(x=forecast_df[x_label], y=forecast_df[y_label], mode='lines', line=dict(color='red', dash='dash'))
         fig.update_layout(
             autosize=False,
             width=600,
@@ -121,7 +137,7 @@ def create_staff_charts():
         
         if sheet_name in ['Sheet1', 'Sheet2', 'Sheet3']:
             bar_figures[sheet_name] = create_bar_chart(df, title, x_label, y_label, color)
-            forecast_figures[sheet_name] = create_forecast_chart(df, f"Forecast for 2030 - {title}", x_label, y_label, color)
+            forecast_figures[sheet_name] = create_forecast_chart(df, f"Forecast for the Next 5 Years - {title}", x_label, y_label, color)
         elif sheet_name == 'Sheet4':
             line_figures[sheet_name] = create_line_chart(df, title, x_label, y_label, color)
 
@@ -215,23 +231,22 @@ def create_students_charts():
         X = df[['Year']].values.reshape(-1, 1)
         y = df['Actual'].values
         model = LinearRegression().fit(X, y)
-        future_years = np.array([2030]).reshape(-1, 1)
-        forecast_value = model.predict(future_years)[0]
+        future_years = np.arange(df['Year'].max() + 1, df['Year'].max() + 6).reshape(-1, 1)
+        forecast_values = model.predict(future_years)
         fig2 = px.line(
             df,
             x='Year',
             y='Actual',
-            title='Linear Regression Forecast for 2030',
+            title='Linear Regression Forecast for the Next 5 Years',
             labels={'Year': 'Year', 'Actual': 'Headcount'},
             markers=True
         )
+        forecast_df = pd.DataFrame({'Year': future_years.flatten(), 'Actual': forecast_values})
         fig2.add_scatter(
-            x=[2030],
-            y=[forecast_value],
-            mode='markers+text',
-            text=['2030'],
-            textposition='top right',
-            marker=dict(color='red', size=10),
+            x=forecast_df['Year'],
+            y=forecast_df['Actual'],
+            mode='lines',
+            line=dict(color='red', dash='dash'),
             name='Forecast'
         )
         return fig2
@@ -701,7 +716,7 @@ def create_performance_charts():
     X14 = df14[['Year']]
     y14 = df14['Faculty']
 
-    # Impute any missing values in X14 and y14
+     # Impute any missing values in X12 and y12
     imputer_X14 = SimpleImputer(strategy='mean')
     imputer_y14 = SimpleImputer(strategy='mean')
     X14 = imputer_X14.fit_transform(X14)
@@ -1095,9 +1110,9 @@ staff_dropdown_options = [
     {'label': 'Faculty Data (Sheet1)', 'value': 'Sheet1'},
     {'label': 'Department Success Rates (Sheet2)', 'value': 'Sheet2'},
     {'label': 'Academic Staff with PhD (Sheet3)', 'value': 'Sheet3'},
-    {'label': 'Forecast for 2030 - Faculty Data (Sheet1)', 'value': 'Sheet1_forecast'},
-    {'label': 'Forecast for 2030 - Department Success Rates (Sheet2)', 'value': 'Sheet2_forecast'},
-    {'label': 'Forecast for 2030 - Academic Staff with PhD (Sheet3)', 'value': 'Sheet3_forecast'},
+    {'label': 'Forecast for the Next 5 Years - Faculty Data (Sheet1)', 'value': 'Sheet1_forecast'},
+    {'label': 'Forecast for the Next 5 Years - Department Success Rates (Sheet2)', 'value': 'Sheet2_forecast'},
+    {'label': 'Forecast for the Next 5 Years - Academic Staff with PhD (Sheet3)', 'value': 'Sheet3_forecast'},
     {'label': 'Department Success Rates Line (Sheet4)', 'value': 'Sheet4'},
     {'label': 'Percentage Difference (2022 vs. 2014)', 'value': 'Sheet5_diff'},
     {'label': 'Percentage of Full-Time Permanent Academic Staff with PhD (2014-2022)', 'value': 'Sheet5'}
@@ -1105,7 +1120,7 @@ staff_dropdown_options = [
 
 students_dropdown_options = [
     {'label': 'Headcount Enrolment: Planned vs Achieved (2014-2022)', 'value': 'fig1'},
-    {'label': 'Linear Regression Forecast for 2030', 'value': 'fig2'},
+    {'label': 'Linear Regression Forecast for the Next 5 Years', 'value': 'fig2'},
     {'label': 'Enrolment by Level', 'value': 'fig3'},
     {'label': 'Number of Students by Department (2014 vs 2022)', 'value': 'fig4'},
     {'label': '% African Students (2014-2022)', 'value': 'fig5'},
@@ -1180,6 +1195,17 @@ performance_layout = html.Div(style={'textAlign': 'center'}, children=[
     dcc.Graph(id='performance-graph')
 ])
 
+# Chatbot layout
+chatbot_layout = html.Div(style={'textAlign': 'center'}, children=[
+    html.H1("Chat with Us"),
+    dcc.Textarea(
+        id='chat-input',
+        style={'width': '50%', 'height': '100px', 'margin': 'auto'}
+    ),
+    html.Button('Send', id='send-button', n_clicks=0),
+    html.Div(id='chat-output')
+])
+
 # Define the main layout with a navigation bar and content
 app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
@@ -1188,7 +1214,9 @@ app.layout = html.Div([
         html.Span(' | '),
         dcc.Link('Students Preliminary Analysis', href='/students'),
         html.Span(' | '),
-        dcc.Link('Student Performance Indicators', href='/performance')
+        dcc.Link('Student Performance Indicators', href='/performance'),
+        html.Span(' | '),
+        dcc.Link('Chat with Us', href='/chat')
     ], style={'textAlign': 'center', 'margin': '20px'}),
     html.Div(id='page-content')
 ])
@@ -1201,6 +1229,8 @@ def display_page(pathname):
         return students_layout
     elif pathname == '/performance':
         return performance_layout
+    elif pathname == '/chat':
+        return chatbot_layout
     else:
         return staff_layout
 
@@ -1245,6 +1275,18 @@ def update_students_graph(selected_value):
               [Input('performance-dropdown', 'value')])
 def update_performance_graph(selected_value):
     return performance_figures[selected_value]
+
+# Callback for handling chat messages
+@app.callback(
+    Output('chat-output', 'children'),
+    [Input('send-button', 'n_clicks')],
+    [State('chat-input', 'value')]
+)
+def handle_chat(n_clicks, message):
+    if n_clicks > 0 and message:
+        send_email('New Chat Message', message, 'Ngcobo.Nkululeko@yahoo.com')
+        return 'Your message has been sent!'
+    return ''
 
 # Run the Dash app
 if __name__ == '__main__':
