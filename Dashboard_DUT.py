@@ -32,7 +32,7 @@ def send_email(subject, message, recipient):
 # File paths to the Excel files
 staff_file_path = 'Chart in Microsoft PowerPoint.xlsx'
 students_file_path = 'Students.xlsx'
-performance_file_path = '/content/Student Perfomances.xlsx'
+performance_file_path = 'Student Perfomances.xlsx'
 
 # Functions to create charts for staff data
 def create_staff_charts():
